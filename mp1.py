@@ -97,10 +97,10 @@ print(noon_today.time())
 # time 모듈의 time() 함수는 현재 시간을 에포치값으로 반환
 import time
 now = time.time()
-print(now)
+print('now(epoch: time.time()): ', now)
 
 # ctime() : 에포치값을 문자열로 변환
-print(time.ctime(now))
+print('time.ctime(now): ', time.ctime(now))
 
 # 에포치값은 자바스크립트와 같은 다른 시스템에서 날짜와 시간을 교환하기 위한 유용한
 # 최소 공통분모 임.
@@ -109,17 +109,109 @@ print(time.ctime(now))
 # gmtime()    : UTC (이전에는 그리니치 시간 또는 줄루 시간)
 import time
 now = time.time()
-print('now: ', now, 'time.localtime(now): ', time.localtime(now))
-print('now: ', now, 'time.gmtime(now): ', time.gmtime(now))
+print('now(epoch: time.time()): ', now, 'time.localtime(now): ', time.localtime(now))
+print('now(epoch: time.time()): ', now, 'time.gmtime(now): ', time.gmtime(now))
 
 # mktime() : struct_time 객체를 에포치 초로 반환
 import time
 now = time.time()   # 에포치 반환
+print('now(epoch: time.time()): ', now)
 tm = time.localtime(now)
-print(time.mktime(tm))  # now()의 에포치 값과 일치하지 않음. struct_time 객체는
-                        # 시간을 초까지만 유지.
+print('tm(time.localtime(now)): ', tm)
+print('time.mktime(tm): ', time.mktime(tm))  # now()의 에포치 값과 일치하지 않음. struct_time 객체는
+                                             # 시간을 초까지만 유지.
 
 # 가능하면 표준시간대 대신 UTC를 사용. UTC는 표준시간대와 독립적인 절대시간임.
 # 서버를 운영한다면 현지 시간이 아닌 UTC를 설정하라.
 
 # 10.4.3 날짜와 시간 읽고 쓰기
+import time
+now = time.time()
+print('now(epoch: time.time()): ', now)
+print('time.ctime(now): ', time.ctime(now))
+print('')
+
+
+# strftime() : 날짜와 시간을 문자열로 변환
+# strftime() 출력 지정자
+# 문자열 포맷  : 날자/시간 단위   : 범위
+# %Y          : 년              : 1900 ~
+# %m          : 월              : 01 ~ 12
+# %B          : 월 이름         : January,
+# %b          : 월 축약 이름     : Jan,
+# %d          : 월의 일자       : 1 ~ 31
+# %A          : 요일 이름       : Sunday,
+# %a          : 요일 축약 이름  : Sun,
+# %H          : 24시간         : 00 ~ 23
+# %I          : 12시간         : 01 ~ 12
+# %p          : 오전/오후      : AM, PM
+# %M          : 분            : 00 ~ 59
+# %S          : 초            : 00 ~ 59
+
+import time
+fmt = "It's %A, %B %d, %Y, localtime %I:%M:%S %p"
+t = time.localtime()
+print('t(time.localtime()): ', t)
+t1 = time.gmtime()
+print('t1(time.gmtime()): ', t1)
+print('time.strftime(fmt, t): ', time.strftime(fmt, t))
+print("time.strftime('%Y-%m-%d %H-%M-%S', t1): ", time.strftime('%Y-%m-%d %I-%M-%S', t1))
+print('')
+
+# date 객체에 사용하면 날짜 부분만 작동. 시간은 기본값으로 지정됨. 현재 시간이 아님.
+from datetime import date
+some_day = date(2015, 12, 12)
+fmt = "It's %B %d, %Y, local time %I:%M:%S %p"
+print('some_day.strftime(fmt): ', some_day.strftime(fmt))
+
+# time 객체는 시간 부분만 변환
+from datetime import time
+some_time = time(10, 25)
+fmt = "It's %B %d, %Y, local time %I:%M:%S %p"
+print('some_time.strftime(fmt): ', some_time.strftime(fmt))
+
+# strptime() : 문자열을 날짜나 시간으로 변환
+import time
+fmt = "%Y-%m-%d"
+try:
+    time.strptime("2015 06 02", fmt)
+except ValueError as e:
+    print("Error Occured: ", e)
+
+print('time.strptime("2015-06-02", fmt): ', time.strptime("2015-06-02", fmt))   # 대시(-)를 붙임
+
+# 값의 범위를 넘어가는 경우 예외 발생
+import time
+fmt = "%Y-%m-%d"
+try:
+    time.strptime("2015-13-29", fmt)
+except ValueError as e:
+    print('Error Occured: ', e)
+
+# 이름은 운영체제의 국제화 설정인 로케일(locale)에 따름. 다른 월, 일의 이름을 출력하려면 setlocale() 사용.
+# setlocale()의 첫 인자는 날짜와 시간을 위한 locale.LC_TIME이고, 두번째는 언어와 국가 약어가 결합된 문자열.
+import locale
+from datetime import date
+halloween = date(2015, 10, 31)
+for lang_country in ['ko_kr', 'en_us', 'fr_fr', 'de_de', 'es_es', 'is_is',]:
+    locale.setlocale(locale.LC_TIME, lang_country)
+    print('lang_country: ', lang_country, ', halloween.strftime("%A, %B %d"): ', halloween.strftime('%A, %B %d'))
+# lang_country 찾는 방법
+# "ko_ko" : "두 글자의 언어코드_두 글자의 국가 코드
+import locale
+names = locale.locale_alias.keys()
+#print('names: ', names)
+good_names = [name for name in names if len(name) == 5 and name[2] == '_']
+print('good_name[0:5]: ', good_names[0:5])
+de = [name for name in names if name.startswith('de')]
+print(de)
+ko = [name for name in names if name.startswith('ko')]
+print(ko)
+
+
+# 10.4.4 대체 모듈
+# arrow : 많은 날짜와 시간 함수를 결합하여 간단한 API를 제공
+# dateutil : 대부분의 날짜 포맷을 파싱하고, 상대적인 날짜와 시간에 대해서 처리
+# iso8601 : ISO8601 포맷에 대한 표준 라이브러리의 부족한 부분을 보충
+# fleming : 표준시간대 함수를 제공
+
