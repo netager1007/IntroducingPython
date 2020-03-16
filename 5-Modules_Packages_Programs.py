@@ -1,71 +1,103 @@
-# Stack + Queue == deque
 
-def palindrome(word):
-    from collections import deque
-    dq = deque(word)
-    print('len(dq): ', len(dq))
-    while len(dq) > 1:
-        if dq.popleft() != dq.pop():
-            return False
-    print('Last Print')
-    return True
-print(palindrome('aba'))
-print(palindrome('a'))
-
-print(palindrome('ab'))
+# Module Search Path
+# ------------------
+# The first match will be used.
+import sys
+print('Program arguments:', sys.argv)
+for place in sys.path:
+    print('[Python Search Path]:', place)
 
 
-# Python doesn't have a reverse() function for string, but it does have a way to reverse
-# a string whit a slice.
-def another_palindrome(word):
-    return word == word[::-1]
-print('another palindrome: ', another_palindrome('radar'))
-print('another palindrome: ', another_palindrome('halibut'))
+# Packages
+# --------
+# You can organize modules into file hierarchies called packages.
+#
+# Show boxes/weather.py
+
+# The Python Standard Library
 
 
-# 코드구조 순회하기 : itertools
-# for ... in 루프에서 이터레이터 함수를 호출할 때 함수는 한 번에 한 항목을 반환, 호출상태 기억
+# The Python Standard Library
+# ---------------------------
 
-# itertools.chain()
-import itertools
-for item in itertools.chain([1, 2],['a','b']):
-    print(item)
+# setdefault()
+# defaultdict()
+# handle Missing Keys with setdefault() and defaultdict()
+# -------------------------------------------------------
+periodic_table = {'Hydrogen':1, 'Helium':2}
+print(periodic_table)
 
-# itertools.cycle()
-import itertools
-num = 0
-for item in itertools.cycle([1,2]):
-    print(item)
-    num += 1
-    if num > 2:
-        break
+carbon = periodic_table.setdefault('Carbon', 12)
+periodic_table.setdefault('Lee', 13)
+periodic_table.setdefault('Lee', 15)
+print(carbon)
+print(type(carbon))
+print(periodic_table)
 
-# itertools.accumulate()
-import itertools
-for item in itertools.accumulate([1, 2, 3, 4, 5]):
-    print('itertools.accumulate: ', item)
+from collections import defaultdict
+periodic_table = defaultdict(int)
 
-import itertools
-for item in itertools.accumulate(range(1, 1001)):
-    pass
-print('itertools.accumulate: ', item)
-print('공식: ', 1001 * 500)
+periodic_table['Hydrogen'] = 11
+periodic_table['SLee']
+print(periodic_table)
 
-import itertools
-def multifly(a, b):
-    return a * b
+from collections import defaultdict
+def no_idea():
+    return 'Huh?'
 
-for item in itertools.accumulate([1,2,3,4], multifly):
-    print(item)
+bestiary = defaultdict(no_idea)
+bestiary['A'] = 'Abominable Snowman'
+bestiary['B'] = 'Basilisk'
+print(bestiary['A'])
+print(bestiary['B'])
+print(bestiary['C'])
 
 
-# Print Nicely with pprint()
-from pprint import pprint
-from collections import OrderedDict
-quotes = OrderedDict([ \
-    ('Moe', 'A wise quy, huh?'), \
-    ('Larry', 'Ow!'), \
-    ('Curly', 'Nyuk nyuk!'), \
-     ])
-print(quotes)
-pprint(quotes)
+# Using int is one way to make your own counter:
+from collections import defaultdict
+food_counter = defaultdict(int)
+for food in ['spam', 'spam', 'eggs', 'spam']:
+    food_counter[food] += 1
+
+print(food_counter)
+print(type(food_counter))
+for food, count in food_counter.items():
+    print(food, count)
+
+dict_counter = {}
+for food in ['spam', 'spam', 'eggs', 'spam']:
+    if not food in dict_counter:
+        dict_counter[food] = 0
+    dict_counter[food] += 1
+for food, count in dict_counter.items():
+    print(food, count)
+
+# Counter()
+# --------------------------
+from collections import Counter
+breakfast = ['spam', 'spam', 'eggs', 'spam', 'can','can','can','can','a','a','aa','bb','bb']
+breakfast_counter = Counter(breakfast)
+print('Breakfast Counter:', breakfast_counter)
+print(type(breakfast_counter))
+
+# most_common() function in Counter Class
+print(breakfast_counter.most_common())
+print(breakfast_counter.most_common(1))
+print(breakfast_counter.most_common(2))
+print(breakfast_counter.most_common(3))
+
+# Combine counters
+lunch = ['eggs', 'eggs', 'bacon']
+lunch_counter = Counter(lunch)
+print('Breakfast Counter:', breakfast_counter)
+print('Lunch Counter:', lunch_counter)
+
+print('+ :', breakfast_counter + lunch_counter)
+print('- :', breakfast_counter - lunch_counter)
+print('& :', breakfast_counter & lunch_counter)
+print('| :', breakfast_counter | lunch_counter)
+
+
+# Order by Key with OrderDict()
+# -----------------------------
+quotes = {}
