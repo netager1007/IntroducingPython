@@ -250,4 +250,5 @@ d[0] = '3. integer lists are boring'
 print(a)
 print(b)
 print(c)
+print(c)
 print(d)
