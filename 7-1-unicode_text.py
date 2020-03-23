@@ -64,32 +64,3 @@ print(place2)
 place4 = place_bytes.decode('latin-1')
 print(place4)
 
-# 포맷 : format
-print('%s' % 42)
-print('%d' % 42)
-
-n = 42
-f = 7.03
-s = 'string'
-s1 = 'string cheese'
-
-print('%d %f %s %s' % (n, f, s, s1))
-print('%10d %10f %10s %10s' % (n, f, s, s1))
-print('%-10d %-10f %-10s %-10s' % (n, f, s, s1))
-print('%.4d %.4f %.4s %.4s' % (n, f, s, s1))
-print('%*.*d %*.*f %*.*s %*.*s' % (10,4,n, 10, 4, f, 10, 4, s, 10, 4, s1))
-
-print('first: {} {} {}'.format(n,f,s))
-print('secode: {2} {0} {1}'.format(n,f,s))
-d = {'n':42, 'f':4.03, 's':'string cheese'}
-print('third: {0[n]} {0[f]} {0[s]}'.format(d, 'other'))
-
-print('{0:d} {1:f} {2:s}'.format(n, f, s))
-print('{n:d} {f:f} {s:s}'.format(n=42, f=7.03, s='string cheese'))
-
-print('{0:>10d} {1:>10f} {2:>10s}'.format(n, f, s))
-print('{2:>10s} {0:>10d} {1:>10f}'.format(n, f, s))
-print('{:>10d} {:>10f} {:>10s}'.format(n, f, s))
-
-print('{0:^10d} {1:^10f} {2:^10s}'.format(n, f, s))
-print('{0:^20s}'.format('Big Sale'))

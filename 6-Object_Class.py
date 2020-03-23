@@ -350,19 +350,75 @@ print(fowl._Duck__name)
 
 # Method Types
 # ------------
+# 정적 메소드(Static Method, Class Method)
+# 둘다 인스턴스를 만들지 않아도 class 메서드를 바로 실행 할 수 있음.
 
+# static method
+class hello:
+    num = 10
 
-import os
-os.exit()
+    @staticmethod
+    def calc(x):
+        return x + 10
+print(hello.calc(10))
 
+# classmethod
+class hello:
+    num = 10
 
-#print(fowl.__name)
+    @classmethod
+    def calc(cls, x):
+        return x + 10
+print(hello.calc(10))
 
-print(fowl._Duck__name)
+# 둘 다 객체를 만들지 않고 바로 해당 메서드를 사용 함.
+# 차이점은 calc 메서드를 만들때 cls 인자가 추가 된 거임.
+
+# 이제 개념적인 차이점을 살펴보자.  만약 hello 클래스의 num 속성에 접근하려면?
+# 우선 객체가 아니므로 self.num을 사용할 수 없음.
+
+# staticmethod
+class hello:
+    num = 10
+
+    @staticmethod
+    def calc(x):
+        return x + 10 + hello.num
+print(hello.calc(10))
+
+# 정적 변수로 접근. 좋아 보이지 않음.
+
+# classmethod
+class hello:
+    num = 10
+
+    @classmethod
+    def calc(cls, x):
+        return x + 10 + cls.num
+print(hello.calc(10))
+
+# classmethod는 cls가 있는데 이것은 '클래스'를 가리킨다.
+# 이것으로 클래스의 어떤 속성에도 접근할 수 있다.
+# 위 예시 경우 또한 cls.num을 통해 hello 클래스의 num 속성에 접근했다.
+
+# 만약 상속 관계가 있는 클래스들에선 cls가 가리키는 클래스는 어떤 클래스일까?
+class hello:
+    t = '내가 상속해 줬어'
+
+    @classmethod
+    def calc(cls):
+        return cls.t
+
+class hello_2(hello):
+    t = '나는 상속 받았어'
+
+print(hello_2.calc())
+
 
 
 class A():
     count = 0
+
     def __init__(self):
         A.count += 1
 
@@ -371,17 +427,62 @@ class A():
 
     @classmethod
     def kids(cls):
-        print("A has", cls.count, "little objects.")
+        print("A has", cls.count, 'little objects')
 
 easy_a = A()
 breezy_a = A()
 wheezy_a = A()
 A.kids()
-easy_a.kids()
-aa = A()
-aa.kids()
 
-# 덕 타이핑
+class CoyoteWeapon():
+    @staticmethod
+    def commercial():
+        print('This Coyote Weapon has been brought to you by Acme')
+
+CoyoteWeapon.commercial()
+
+
+# Abstract class(추상 메서드)
+# --------------------------
+# Python 3.3 에서 추상 메서드 방법이 변경된 것 같음.
+
+# 잘 만들어진 class는 잘 사용되도록 만들어져있다.
+# class로 만들었다면 class에서 정의된 메서드를 있는 그대로 사용하지 않을 것이다.
+# 반드시 상속받아 class변수를 추가하거나 메서드를 추가할 것이고 어떤 메서드는 오버라이드 해야 할 것이다.
+# 그래야만 class로 만든 의미가 있다. 확장된 기능을 만들면서 통일된 체계를 구축하는 것이 class의 개념이다.
+
+# 이런 개념을 유지하기 위해 class를 만들 때 반드시 구현 해야 할 메서드를 class에 명시할 수 있다.
+class Car:
+    def turnning(cls):
+        raise NotImplementedError
+
+class Sonaty(Car):
+    def turnning(self):
+        print('turnning finish')
+
+class test_car(Car):
+    pass
+
+sonaty = Sonaty()
+sonaty.turnning()
+
+t_car = test_car()
+try:
+    t_car.turnning()
+except NotImplementedError as e:
+    print('[Exception Occured]:', e)
+
+# 위와 같이 하면 상속받은 Sonaty class에서 turnning메서드를 구현하지 않으면 에러가 발생한다.
+# raise NotImplementedError가 이런 역할을 한다.
+
+# 이보다 좀 더 세련된 방법이 있음.
+# import abc
+
+# class Car:
+#     @abc.abstractclassmethod
+
+# Duck Typing
+# -----------
 class Quote():
     def __init__(self, person, words):
         self.person = person
@@ -401,33 +502,49 @@ class ExclamationQuote(Quote):
     def says(self):
         return self.words + '!'
 
-hunter = Quote('Elmer Fudd',"I'm hunting rabbits" )
-print(hunter.who(), hunter.says())
+# We didn’t change how QuestionQuote or ExclamationQuote were initialized,
+# so we didn’t override their __init__() methods.
+# Python then automatically calls the __init__() method of the parent class Quote
+# to store the instance variables person and words.
 
-hunter1 = QuestionQuote('Bug Bunny', "What's up, doc")
-print(hunter1.who(), hunter1.says(), hunter1.says())
+# That’s why we can access self.words in objects created from the subclasses
+# QuestionQuote and ExclamationQuote.
+hunter = Quote('Elmer Fudd', "I'm huntering wabbits")
+print(hunter.who(), 'says', hunter.says())
+
+hunter1 = QuestionQuote('Bugs Bunny', "What's up, doc")
+print(hunter1.who(), 'says', hunter1.says())
 
 hunter2 = ExclamationQuote('Daffy Duck', "It's rabbit season")
-print(hunter2.who(), hunter2.says(), hunter2.says())
+print(hunter2.who(), 'says', hunter2.says())
 
+# Three different versions of the says() method provide different behavior for the three classes.
+# This is traditional polymorphism(다형성) in object-oriented languages.
 
 class BabblingBrook():
     def who(self):
         return 'Brook'
+
     def says(self):
         return 'Babble'
 
 brook = BabblingBrook()
-print(brook.who())
-print(brook.says())
+
+# Now, run the who() and says() methods of various objects, one (brook) completely unrelated to the others:
 
 def who_says(obj):
-    print(obj.who(), obj.says())
+    print(obj.who(), 'says', obj.says())
 
 who_says(hunter)
 who_says(hunter1)
+who_says(hunter2)
 who_says(brook)
 
+# This behavior is sometimes called duck typing.
+
+
+# Special Methods
+# ---------------
 class Word():
     def __init__(self, text):
         self.text = text
@@ -442,11 +559,16 @@ third = Word('eh')
 print(first.equals(second))
 print(first.equals(third))
 
+# We defined the method equals() to do this lowercase conversion and comparison.
+
+# It would be nice to just say if first == second, just like Python’s built-in types.
+# So, let’s do that. We change the equals() method to the special name __eq__() (you’ll see why in a moment):
 class Word():
     def __init__(self, text):
         self.text = text
 
     def __eq__(self, words):
+        print('Word.__eq__')
         return self.text.lower() == words.text.lower()
 
 first = Word('ha')
@@ -456,12 +578,58 @@ third = Word('eh')
 print(first == second)
 print(first == third)
 
+# Magic methods for comparison
+# 1. __eq__(self, other)     self == other
+# 2. __ne__(self, other)     self != other
+# 3. __lt__(self, other)     self <  other
+# 4. __gt__(self, other)     self >  other
+# 5. __le__(self, other)     self <= other
+# 5. __ge__(self, other)     self >= other
 
-class bill():
+# Magic methods for math
+# 1. __add__(self, other)      self +  other
+# 2. __sub__(self, other)      self -  other
+# 3. __mul__(self, other)      self *  other
+# 4. __floordiv__(self, other) self // other
+# 5. __truediv__(self, other)  self /  other
+# 6. __mod__(self, other)      self %  other
+# 7. __pow__(self, other)      self ** other
+
+# Other, miscellaneous magic methods
+# 1. __str__(self)     str(self)
+# 2. __repr__(self)    repr(self)
+# 3. __len__(self)     len(self)
+
+first = Word('ha')
+print(first)
+
+class Word():
+    def __init__(self, text):
+        self.text = text
+
+    def __eq__(self, words):
+        return self.text.lower() == words.text.lower()
+
+    def __str__(self):
+        return self.text
+
+    def __repr__(self):
+        return 'Word('" self.text "')'
+
+
+# >>> first = Word('ha')
+# >>> first               # Uses __repr__ , Return : Word("ha")
+
+# >>> print(first)        # Uses __str__,   Return : ha
+
+
+# Composition
+# -----------
+class Bill():
     def __init__(self, description):
         self.description = description
 
-class tail():
+class Tail():
     def __init__(self, length):
         self.length = length
 
@@ -471,17 +639,196 @@ class Duck():
         self.tail = tail
 
     def about(self):
-        print("aaa")
         print("This duck has a", self.bill.description, "bill and a", self.tail.length, "tail")
 
-tail = tail('long')
-bill = bill('wide orange')
+tail = Tail('long')
+bill = Bill('wide orange')
 duck = Duck(bill, tail)
 duck.about()
 
-# Named tuple
+# When to Use Classes and Objects versue Modules
+
+# Here are some guidelines for deciding whether to put your code in a class or a module:
+
+# 1. Objects are most useful when you need a number  of individual instances that have similar behavior methods),
+#    but differ in their internal states(attributes).
+# 2. Classes support inheritance, modules don’t.
+# 3. If you want only one of something, a module might be best. No matter how many times a Python module is
+#    referenced in a program, only one copy is loaded. (Java and C++ programmers: if you’re familiar with
+#    the book Design Patterns: Elements of Reusable Object-Oriented Software by Erich Gamma,
+#    you can use a Python module as a singleton.)
+# 4. If you have a number of variables that contain multiple values and can be passed as arguments to multiple
+#    functions, it might be better to define them as classes. For example, you might use a dictionary with keys
+#    such as size and color to represent a color image. You could create a different dictionary for each image
+#    in your program, and pass them as arguments to functions such as scale() or transform(). This can get messy
+#    as you add keys and functions. It’s more coherent to define an Image class with attributes size or
+#    color and methods scale() and transform(). Then, all the data and methods for a color image are defined in
+#    one place.
+# 5. Use the simplest solution to the problem. A dictionary, list, or tuple is simpler, smaller, and faster than
+#    a module, which is usually simpler than a class.
+
+# Guido’s advice:
+# ---------------
+# Avoid overengineering datastructures. Tuples are better than objects (try namedtuple too though).
+# Prefer simple fields over getter/setter functions ...
+# Built-in datatypes are your friends. Use more numbers, strings, tuples, lists, sets, dicts.
+# Also check out the collections library, esp. deque.
+#                                                                            — Guido van Rossum
+
+
+# Named Tuples
+# ------------
+# A named tuple is a subclass of tuples with which you can access values by name (with .name) as well as
+# by position (with [ offset ]).
+
+# Let’s take the example from the previous section and convert the Duck class to a named tuple,
+# with bill and tail as simple string attributes. We’ll call the namedtuple function with two arguments:
+# 1. The name
+# 1. A string of the field names, separated by spaces
+
+# Named tuples are not automatically supplied with Python, so you need to load a module before using
+# them. We do that in the first line of the following example:
 from collections import namedtuple
 
 Duck = namedtuple('Duck', 'bill tail')
 duck = Duck('wide orage', 'long')
 print(duck)
+
+print(duck.bill)
+print(duck.tail)
+
+# You can also make a named tuple from a dictionary:
+Duck = namedtuple('Duck', 'bill tail')
+parts = {'bill': 'wide orage', 'tail': 'long'}
+duck2 = Duck(**parts)
+print(duck2)
+
+duck3 = duck2._replace(tail='magnificent', bill='crushing')
+print(duck3)
+
+# We could have defined duck as a dictionary:
+duck_dict = {'bill': 'wide orange', 'tail': 'long'}
+print(duck_dict)
+
+# You can add fields to a dictionary:
+duck_dict['color'] = 'green'
+print(duck_dict)
+
+# But not to a named tuple:
+from collections import namedtuple
+
+Duck = namedtuple('Duck', 'bill tail')
+duck = Duck('wide orage', 'long')
+try:
+    duck.color = 'green'
+except AttributeError as e:
+    print('[Exception Occured]:', e)
+
+# To recap, here are some of the pros of a named tuple:
+# 1. It looks and acts like an immutable object.
+# 2. It is more space- and time-efficient than objects.
+# 3. You can access attributes by using dot notation instead of dictionary-style square brackets.
+# 4. You can use it as a dictionary key.
+
+# 파이썬만의 특별한 클래스 작성 기법(namedtuple)
+# -------------------------------------------
+# - 클래스없이 객체를 생성할 수 있는 방법 - 클래스에 attribute만 있는 경우에 해당 함.
+import collections
+
+# C언어는 변수를 묶어서 하나의 변수로 쓸 수 있는데, 파이썬에서는 이와 같은 방식으로 사용 가능.
+# struct student {
+#    int id:
+#    char *name;
+# };
+
+# int main() {
+#    struct student s;
+#    s.id = 1;
+#    s.name = '김철수';
+# }
+
+# 사용법 in Python
+# 클래스명 = collections.namedtuple('실제 클래스명', [각 튜플 데이터 이름 리스트])
+# Employee = collections.namedtuple('Person', ['name', 'id'])
+# 클래스명 = collections.namedtuple('실제 클래스명', '각 튜플 데이터 이름을 한칸씩 띄우면서 나열')
+# Employee = collections.namedtuple('Person', 'name id')
+Employee = collections.namedtuple('Employee', ['name', 'id'])    # 리스트로 써도 되고!
+employee1 = Employee('Dave', '4011')
+print(employee1)
+print(type(employee1))
+
+Employee = collections.namedtuple('Employee', 'name id')        # 스트링처럼 써도 됨
+employee1 = Employee('LEE', '4022')
+print (employee1)
+print (type(employee1))
+
+# 속성을 다루는 방법
+Employee = collections.namedtuple('Employee', ['name', 'id'])
+
+employee1 = Employee('Dave', '4011')
+employee2 = Employee('David', '4012')
+
+# 일반적인 튜플 처럼 속성 접근 (권장하지는 않음, 추후 일반 클래스로 바꾼다면 관련 코드를 모두 변경해야함)
+print(employee1, employee1[0], employee1[1])
+print(employee2.name, employee2.id)
+name, id = employee2
+print(name, id)
+
+
+# 초간단 연습1
+# 1. 직장인 이름, 나이, 부서를 속성으로 갖는 기존과 같은 방식으로 class를 만들고,
+# - 세 개의 객체를 임의 속성값과 함께 넣어보고, 각각을 출력해보기
+# 2. 이번에는 직장인 이름, 나이, 부서를 속성으로 갖는 class를 namedtuple 로 정의하고,
+# - 세 개의 객체를 임의 속성값과 함께 넣어보고, 각각을 출력해보기
+class EmployeeClass:
+    def __init__(self, name, id, org):
+        self.name = name
+        self.id = id
+        self.org = org
+
+employee2 = EmployeeClass('Dave', '4011', 'sales')
+print(employee2.name, employee2.id, employee2.org)
+
+Employee = collections.namedtuple('Employee', ['name', 'id', 'org'])
+employee1 = Employee('David', '4012', 'consult')
+print(employee1.name, employee1.id, employee1.org)
+
+# typing.NamedTuple
+# -----------------
+# 파이썬 3.6에서 추가된 클래스 (collections.namedtuple 의 개선 방식?)
+from typing import NamedTuple
+
+class Employee(NamedTuple):
+    name: str
+    id: int
+
+employee1 = Employee('Guido', 2)
+print(employee1)
+print(employee1.name, employee1.id)
+print(employee1[0], employee1[1])
+
+# 디폴트값도 선언할 수 있음.
+from typing import NamedTuple
+
+class Employee(NamedTuple):
+    name: str
+    id: int = 3
+
+employee1 = Employee('Guido')
+print(employee1)
+print(employee1.name, employee1.id)
+print(employee1[0], employee1[1])
+
+
+from typing import NamedTuple
+
+class Employee(NamedTuple):
+    name: str = 'Guido'
+    id: int = 3
+
+employee1 = Employee()
+employee2 = Employee('Dave', 4)
+
+print(employee1)
+print(employee1.name, employee1.id)
+print(employee2.name, employee2.id)
