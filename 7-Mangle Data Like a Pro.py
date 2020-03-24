@@ -420,9 +420,270 @@ m = re.sub('n', '?', source)    # 매칭되면 replace
 print('sub()[Pattern: n, Replace: ?, Source: Young Frankenstein]:', m)
 
 m = re.sub('v', '?', source)    # 매칭 안되면 원래 source 반환
-print('sub()[Pattern: n, Replace: ?, Source: Young Frankenstein]:', m)
+print('sub()[Pattern: v, Replace: ?, Source: Young Frankenstein]:', m)
+
+# Patterns: special characters
+# ----------------------------
+# Table 7-3 Special characters
+# 1. \d : a single digit
+# 2. \D : a single non-digit
+# 3. \w : an alphanumeric character(digits, alphabet character, underscore(_))
+# 4. \W : a non-alphanumeric character
+# 5. \s : a whitespace character
+# 6. \S : a non-whitespace character
+# 7. \b : a word boundary (between a \w and a \W, in either order)
+# 8. \B : a non-word boundary
+
+# The Python string module has predefined string constants that we can use for testing.
+# We’ll use printable, which contains 100 printable ASCII characters, including letters in both cases,
+# digits, space characters, and punctuation:
+import string
+printable = string.printable
+print(type(printable))
+print(printable)
+print(printable[0:50])
+print(printable[50:])
+
+# Which characters in printable are digits?
+import re
+print(re.findall('\d', printable))
+
+# Which characters are digits, letters, or an underscore?
+print(re.findall('\w', printable))
+
+# Which are spaces?
+print(re.findall('\s', printable))
+
+# Regular expressions are not confined to ASCII. A \d will match whatever Unicode calls a digit, not just
+# ASCII characters '0' through '9'. Let’s add two non-ASCII lowercase letters from FileFormat.info:
+# In this test, we’ll throw in the following:
+# 1. Three ASCII letters
+# 2. Three punctuation symbols that should not match a \w
+# 3. A Unicode LATIN SMALL LETTER E WITH CIRCUMFLEX (\u00ea)
+# 4. A Unicode LATIN SMALL LETTER E WITH BREVE (\u0115)
+x = 'abc' + '-/*' + '\u00ea' + '\u0115'
+print(x)
+print(re.findall('\w', x))
+
+# Patterns: using specifiers
+# --------------------------
+# Now, let’s make “punctuation pizza,” using the main pattern specifiers for regular expressions,
+# which are presented in Table 7-4.
+# In the table, expr and the other italicized words mean any valid regular expression.
+
+# Table 7-4. Pattern specifiers
+#  1. abc               : literal abc
+#  2. ( expr )          : expr
+#  3. expr1 | expr2     : expr1 or expr2
+#  4. .                 : any character except \n
+#  5. ^                 : start of source string
+#  6. $                 : end of source string
+#  7. prev ?            : zero or one prev
+#  8. prev *            : zero or more prev, as many as possible, 'zo*' : 'z', 'zoo'
+#  9. prev *?           : zero or more prev, as few as possible
+# 10. prev +            : one or more prev, as many as possible,  'zo+' : 'zo', 'zoo' 등, not 'z'
+# 11. prev +?           : one or more prev, as few as possible
+# 12. prev { m }        : m consecutive prev
+# 13. prev { m, n }     : m to n consecutive prev, as many as possible
+# 14. prev { m, n }?    : m to n consecutive prev, as few as possible
+# 15. [ abc ]           : a or b or c (same as a|b|c)
+# 16. [^abc ]           : not (a or b or c)
+# 17. prev (?=next)     : prev if followed by next
+# 18. prev (?! next )   : prev if not followed by next
+# 19. (?<= prev) next   : next if preceded by prev
+# 20. (?<! prev) next   : next if not preceded by prev
+
+# Your eyes might cross permanently when trying to read these examples.
+# First, let’s define our source string:
+import re
+
+source = '''I wish I may, I wish I might
+            ... Have a dish of fish tonight.'''
+print(source)
+
+# First, find wish anywhere:
+print(re.findall('wish', source))
+
+# Next, find wish or fish anywhere:
+print(re.findall('wish|fish', source))
+
+# Find wish at the beginning:
+print(re.findall('^wish', source))
+
+# Find I wish at the beginning:
+print(re.findall('^I wish', source))
+
+# Find fish at the end:
+print(re.findall('fish$', source))
+
+# Finally, find fish tonight. at the end:
+print(re.findall('fish tonight.$', source))
+
+# The characters ^ and $ are called anchors: ^ anchors the search to the beginning of the search string,
+# and $ anchors it to the end. .$ matches any character at the end of the line,
+# including a period, so that worked.
+
+# we should escape the dot to match it literally:
+print(re.findall('fish tonight\.$', source))
+
+source = '''I wish I may, I wish I might
+            ... Have a dish of fish tonight.'''
+
+# Begin by finding w or f followed by ish:
+print(re.findall('[wf]ish', source))
+
+# TODO: I didn't understand
+# Find one or more runs of w, s, or h:
+print(re.findall('[wsh]+', source))
+
+# Find ght followed by a non-alphanumeric:
+print(re.findall('ght\W', source))
+
+# Find I followed by wish:
+print(re.findall('I (?=wish)', source))
+
+# And last, wish preceded by I:
+print(re.findall('(?<=I) wish', source))
+
+# There are a few cases in which the regular expression pattern rules conflict with
+# the Python string rules.
+# The following pattern should match any word that begins with fish:
+print(re.findall('\bfish', source))  # Return: []
+
+# Why doesn’t it? As is discussed in Chapter 2, Python employs a few special escape characters
+# for strings. For example, \b means backspace in strings, but in the mini-language of
+# regular expressions it means the beginning of a word. Avoid the accidental use of
+# escape characters by using Python’s raw strings when you define your regular expression string.
+# Always put an r character before your regular expression pattern string,
+# and Python escape characters will be disabled, as demonstrated here:
+print(re.findall(r'\bfish', source))
 
 
+# Patterns: specifying match output
+# ---------------------------------
+# When using match() or search(), all matches are returned from the result object m as m.group().
+# If you enclose a pattern in parentheses, the match will be saved to its own group,
+# and a tuple of them will be available as m.groups(), as shown here:
+m = re.search(r'(. dish\b).*(\bfish)', source)
+print(m.group())
+print(m.groups())
+
+# If you use this pattern (?P< name > expr ), it will match expr, saving the match in group name:
+m = re.search(r'(?P<DISH>. dish\b).*(?P<FISH>\bfish)', source)
+print(m.group())
+print(m.groups())
+
+print(m.group('DISH'))
+print(m.group('FISH'))
+
+
+# Binary Data
+# -----------
+# Text data can be challenging, but binary data can be, well, interesting.
+# You need to know about concepts such as endianness (how your computer’s processor
+# breaks data into bytes) and sign bits for integers.
+# You might need to delve into binary file formats or network packets to extract
+# or even change data. This section will show you the basics of binary data wrangling in Python.
+
+
+# bytes and bytearray
+# -------------------
+# Python 3 introduced the following sequences of eight-bit integers, with possible values
+# from 0 to 255, in two types:
+# 1. bytes is immutable, like a tuple of bytes
+# 2. bytearray is mutable, like a list of bytes
+
+# Beginning with a list called blist, this next example creates a bytes variable
+# called the_bytes and a bytearray variable called the_byte_array:
+blist = [1, 2, 3, 255]
+
+the_bytes = bytes(blist)
+print(the_bytes)
+
+the_byte_array = bytearray(blist)
+print(the_byte_array)
+
+# NOTE
+# ----
+# The representation of a bytes value begins with a b and a quote character,
+# followed by hex sequences such as \x02 or ASCII characters, and ends with a
+# matching quote character. Python converts the hex sequences or ASCII characters to little
+# integers, but shows byte values that are also valid ASCII encodings as ASCII characters.
+print(b'\x61')
+print(b'\x01abc\xff')
+print(b'\x01\x61\x62\x63\xff')
+
+# This next example demonstrates that you can’t change a bytes variable:
+try:
+    the_bytes[1] = 127
+except TypeError as e:
+    print('[Exception Occured]:', e)
+
+# But a bytearray variable is mellow and mutable:
+blist = [1, 2, 3, 255]
+
+the_byte_array = bytearray(blist)
+print(the_byte_array)
+
+the_byte_array[1] = 127   # bytearray 는 변경 가능
+print(the_byte_array)
+
+# Each of these would create a 256-element result, with values from 0 to 255:
+the_bytes = bytes(range(256))
+print(the_bytes)
+the_byte_array = bytearray(range(256))
+print(the_byte_array)
+
+# When printing bytes or bytearray data, Python uses \xxx for non-printable bytes and
+# their ASCII equivalents for printable ones (plus some common escape characters,
+# such as \n instead of \x0a). Here’s the printed representation of the_bytes (manually
+# reformatted to show 16 bytes per line):
+
+# Convert Binary Data with struct
+# -------------------------------
+# The standard library contains the struct module, which handles data similar to structs
+# in C and C++. Using struct, you can convert binary data to and from Python data structures.
+
+# Let’s see how this works with data from a PNG file —a common image format that you’ll
+# see along with GIF and JPEG files. We’ll write a small program that extracts the width
+# and height of an image from some PNG data.
+# We’ll use the O’Reilly logo—the little bug-eyed tarsier shown in Figure 7-1.
+# We don’t show how to read files until Chapter 8, so I downloaded this file, wrote a little
+# program to print its values as bytes, and just typed the values of the first 30 bytes
+# into a Python bytes variable called data for the example that follows.
+# (The PNG format specification stipulates that the width and height are stored within
+# the first 24 bytes, so we don’t need more than that for now.)
+import struct
+valid_png_header = b'\x89PNG\r\n\x1a\n'
+data = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR' + \
+       b'\x00\x00\x00\x9a\x00\x00\x00\x8d\x08\x02\x00\x00'
+if data[:8] == valid_png_header:
+    width, height = struct.unpack('>LL', data[16:24])
+    print('Valid PNG, width', width, 'height', height)
+else:
+    print('Not a valid PNG')
+
+# Here’s what this code does:
+# 1. data contains the first 30 bytes from the PNG file. To fit on the page,
+#    I joined two byte strings with + and the continuation character (\).
+# 2. valid_png_header contains the 8-byte sequence that marks the start of a valid PNG file.
+# 3. width is extracted from bytes 16-20, and height from bytes 21-24.
+
+# The >LL is the format string that instructs unpack() how to interpret its input byte
+# sequences and assemble them into Python data types. Here’s the breakdown:
+# 1. The > means that integers are stored in bigendian format.
+# 2. Each L specifies a 4-byte unsigned long integer.
+
+# You can examine each 4-byte value directly:
+print(data[16:20])
+print(data[20:24])
+
+# Big-endian integers have the most significant bytes to the left.
+# Because the width and height are each less than 255, they fit into the last byte
+# of each sequence.
+# You can verify that these hex values match the expected decimal values:
+
+print(0x9a, 0x8d)
 
 import os
 os.exit()
